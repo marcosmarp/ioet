@@ -36,7 +36,7 @@ const handleFileUpload = (event) => {
     if (!file) return;
     if (file.type !== "text/plain") {
         alert("Only .txt/.text files are allowed");
-        fileInput.value = null;
+        event.target.value = null;
     }
 
     const reader = new FileReader();
@@ -51,7 +51,10 @@ const handleFileUpload = (event) => {
 
         for (const line of lines) {
             const match = regex.exec(line);
-            if (!match) alert(`Invalid line: ${line}`);
+            if (!match) {
+                event.target.value = null;
+                return alert(`Invalid line: ${line}`);
+            }
 
             const splitLine = line.split("=");
             const employee = splitLine[0];
@@ -130,8 +133,6 @@ const handleFileUpload = (event) => {
 
         if (!employeesAndTotals.length) return;
 
-        toggleNoFileWarning();
-
         const employeesListContainer =
             document.getElementById("employees_list");
         for (const employeeAndTotal of employeesAndTotals) {
@@ -139,8 +140,11 @@ const handleFileUpload = (event) => {
             listItem.innerText = `${employeeAndTotal.employee}: $${Math.round(
                 employeeAndTotal.total
             )}`;
+            listItem.classList.add("list-group-item");
             employeesListContainer?.appendChild(listItem);
         }
+
+        toggleNoFileWarning();
     };
 
     reader.readAsText(file);
@@ -148,7 +152,15 @@ const handleFileUpload = (event) => {
 
 const toggleNoFileWarning = () => {
     const noFileWarning = document.getElementById("no_file_warning");
+    if (!noFileWarning) return;
+
+    const listPopulated =
+        document.getElementsByClassName("list-group-item").length > 0;
+
     noFileWarning.hidden = !noFileWarning.hidden;
+
+    // avoiding leaving the list container empty, mainly when clicking reset on an empty list
+    if (noFileWarning.hidden && !listPopulated) noFileWarning.hidden = false;
 };
 
 const onReset = () => {
