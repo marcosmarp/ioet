@@ -35,8 +35,8 @@ const handleFileUpload = (event) => {
     const file = event.target?.files[0];
     if (!file) return;
     if (file.type !== "text/plain") {
-        alert("Only .txt/.text files are allowed");
         event.target.value = null;
+        return alert("Only .txt/.text files are allowed");
     }
 
     const reader = new FileReader();
